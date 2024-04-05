@@ -123,7 +123,10 @@ const LatestWithdraw = () => {
                   {transactions.map((transaction, index) => (
                     <tr key={index}>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {transaction}
+                        Hash: {transaction.hash}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        Amount: {transaction.amount}
                       </td>
                     </tr>
                   ))}

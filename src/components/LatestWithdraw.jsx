@@ -120,16 +120,33 @@ const LatestWithdraw = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {transactions.map((transaction, index) => (
-                    <tr key={index}>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        Hash: {transaction.hash}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        Amount: {transaction.amount}
-                      </td>
-                    </tr>
-                  ))}
+                  {transactions.map((transaction, index) => {
+                    let dateLocal = "No date";
+                    let dateUTC = "No date";
+
+                    if (transaction.timestamp) {
+                      const utcTimestamp = transaction.timestamp.endsWith("Z")
+                        ? transaction.timestamp
+                        : `${transaction.timestamp}Z`;
+
+                      dateLocal = new Date(utcTimestamp).toLocaleString();
+                      dateUTC = new Date(utcTimestamp).toUTCString();
+                    }
+
+                    return (
+                      <tr key={index}>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          Hash: {transaction.hash}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          Amount: {transaction.amount}
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                          Date: {dateLocal} (local) / {dateUTC} (UTC)
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

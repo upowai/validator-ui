@@ -12,6 +12,9 @@ const LatestWithdraw = () => {
   const [transactions, setTransactions] = useState([]);
   const [error, setError] = useState("");
   const [userCaptchaInput, setUserCaptchaInput] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalTransactions, setTotalTransactions] = useState(0);
+  const [pageSize] = useState(10); // Assuming page size is fixed
 
   React.useEffect(() => {
     loadCaptchaEnginge(6);
@@ -31,7 +34,7 @@ const LatestWithdraw = () => {
     setError("");
     try {
       const response = await axios.get(
-        `${config.pooApi}/latestwithdraws/?wallet_address=${walletAddress}`,
+        `${config.pooApi}/latestwithdraws/?wallet_address=${walletAddress}&page=${page}&page_size=${pageSize}`,
         {
           headers: {
             "Content-Type": "application/json",
@@ -40,6 +43,7 @@ const LatestWithdraw = () => {
       );
 
       setTransactions(response.data.transactions);
+      setTotalTransactions(response.data.total_transactions);
     } catch (error) {
       const errorMessage =
         error.response && error.response.data && error.response.data.detail
@@ -51,6 +55,11 @@ const LatestWithdraw = () => {
       loadCaptchaEnginge(6);
       setUserCaptchaInput("");
     }
+  };
+
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    fetchLatestWithdraws();
   };
 
   return (
@@ -117,6 +126,12 @@ const LatestWithdraw = () => {
                     >
                       Transaction Hash
                     </th>
+                    <th
+                      scope="col"
+                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                    >
+                      Timestamp
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
@@ -139,9 +154,6 @@ const LatestWithdraw = () => {
                           Hash: {transaction.hash}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          Amount: {transaction.amount}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                           Date: {dateLocal} (local) / {dateUTC} (UTC)
                         </td>
                       </tr>
@@ -149,6 +161,22 @@ const LatestWithdraw = () => {
                   })}
                 </tbody>
               </table>
+              <div className="flex justify-between mt-4">
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  disabled={page === 1}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  disabled={page * pageSize >= totalTransactions}
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         )}
